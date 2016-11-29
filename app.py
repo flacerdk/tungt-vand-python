@@ -7,9 +7,12 @@ app = Flask(__name__)
 def hello():
     query = request.args.get("query")
     if query is None:
-        return "Hello"
+        return render_template("entry.html")
     else:
-        entry = Entry(query)
+        try:
+            entry = Entry(query)
+        except ValueError:
+            return render_template("entry.html")
         return render_template(
             'entry.html',
             title=entry.title["title"],
@@ -20,4 +23,4 @@ def hello():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

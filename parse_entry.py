@@ -64,9 +64,9 @@ class Entry:
             if parent is None:
                 continue
             item["definition"] = parent.find(class_="definition").getText()
-            synonyms_div = parent.find(class_="onym")
+            synonyms_div = parent.find(text="Synonym")
             if synonyms_div:
-                synonyms = synonyms_div.find_all("a")
+                synonyms = synonyms_div.parent.parent.find_all("a")
                 if synonyms:
                     item["synonyms"] = []
                     for s in synonyms:
