@@ -4,16 +4,66 @@
   <ul>
   {% for p in pronunciations %}
     <li>
-      {{ p["transcription"] }}
+      {{ p["text"] }}
+      {% for v in p["transcriptions"] %}
+      {% if "audio" in v %}
+      <audio controls>
+        <source src="{{ v['audio'] }}" type="audio/mp3">
+      </audio>
+      {% endif %}
+      {% endfor %}
     </li>
     {% endfor %}
   </ul>
 </div>
+<h1>Betydninger</h1>
 <div id="definitions">
   <ul>
     {% for d in definitions %}
     <li>
-      {{ d["definition"] }}
+      <p>{{ d["definition"] }}</p>
+
+      {% if "grammar" in d %}
+      <p>{{ d["grammar"] }}</p>
+      {% endif %}
+
+      {% if "synonyms" in d %}
+      {% for s in d["synonyms"] %}
+      <p>{{ s }}</p>
+      {% endfor %}
+      {% endif %}
+
+      {% if "quotes" in d %}
+      {% for s in d["quotes"] %}
+      <p>{{ s }}</p>
+      {% endfor %}
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+<h1>Faste udtryk</h1>
+<div id="faste_udtryk">
+  <ul>
+    {% for d in faste_udtryk %}
+    <li>
+      <p>{{ d["definition"] }}</p>
+
+      {% if "grammar" in d %}
+      <p>{{ d["grammar"] }}</p>
+      {% endif %}
+
+      {% if "synonyms" in d %}
+      {% for s in d["synonyms"] %}
+      <p>{{ s }}</p>
+      {% endfor %}
+      {% endif %}
+
+      {% if "quotes" in d %}
+      {% for s in d["quotes"] %}
+      <p>{{ s }}</p>
+      {% endfor %}
+      {% endif %}
     </li>
     {% endfor %}
   </ul>

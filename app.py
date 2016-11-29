@@ -14,7 +14,8 @@ def hello():
             'entry.html',
             title=entry.title["title"],
             pronunciations=entry.pronunciations["json"],
-            definitions=entry.definitions["json"]
+            definitions=entry.definitions["json"],
+            faste_udtryk=entry.faste_udtryk["json"]
         )
 
 
