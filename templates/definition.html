@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+
+{% block definition %}
+{% if "title" in entry.title %}
+<h1>{{ entry.title["title"]["title"] }}</h1>
+{% endif %}
+{% if "inflection" in inflection %}
+<div id="bojning">
+  <p>{{ entry.inflection["inflection"] }}</p>
+</div>
+{% endif %}
+{% if "pronunciations" in entry.pronunciations %}
+<div id="pronunciation">
+  <ul class="list-inline">
+    {% for p in entry.pronunciations["pronunciations"] %}
+    <li>
+      {{ p["text"] }}
+      {% set rowloop = loop %}
+      {% for v in p["transcriptions"] %}
+      {% if "audio" in v %}
+      <audio id="audio-{{ rowloop.index }}-{{ loop.index }}">
+        <source src="{{ v['audio'] }}" type="audio/mp3">
+      </audio>
+      <button onclick="document.getElementById('audio-{{ rowloop.index}}-{{ loop.index }}').play()">Play</button>
+      {% endif %}
+      {% endfor %}
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{% if "definitions" in entry.definitions %}
+<h2>Betydninger</h2>
+<div class="definitions">
+  {% for d in entry.definitions["definitions"] %}
+  <div class="definition">
+    <p>{{ d["definition"] }}</p>
+
+    {% if "grammar" in d %}
+    <p class="small"><em>{{ d["grammar"] }}</em></p>
+    {% endif %}
+
+    {% if "synonyms" in d %}
+    {% for s in d["synonyms"] %}
+    <p class="synonym">{{ s }}</p>
+    {% endfor %}
+    {% endif %}
+
+    {% if "quotes" in d %}
+    {% for s in d["quotes"] %}
+    <p class="quote">{{ s }}</p>
+    {% endfor %}
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% if "definitions" in entry.faste_udtryk %}
+<h2>Faste udtryk</h2>
+<div class="definitions">
+  {% for d in entry.faste_udtryk["definitions"] %}
+  <div class="definition">
+    <p>{{ d["definition"] }}</p>
+
+    {% if "grammar" in d %}
+    <p class="small"><em>{{ d["grammar"] }}</em></p>
+    {% endif %}
+
+    {% if "synonyms" in d %}
+    {% for s in d["synonyms"] %}
+    <p class="synonym">{{ s }}</p>
+    {% endfor %}
+    {% endif %}
+
+    {% if "quotes" in d %}
+    {% for s in d["quotes"] %}
+    <p class="quote">{{ s }}</p>
+    {% endfor %}
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+</div>
+{% endblock %}
+{% block suggestions %}
+{% if "suggestions" in entry.suggestions %}
+<div id="suggestions">
+  {% for s in entry.suggestions["suggestions"] %}
+  <div class="suggestion">
+    <a href="/?{{ s['qs'] }}">{{ s['text'] }}</a>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
