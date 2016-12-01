@@ -10,86 +10,96 @@
   </head>
   <body>
     <div class="container">
-      <div class="row">
-        <div class="col-xs-8">
-          <h1>{{ title }}</h1>
-          <div id="pronunciation">
-            <ul class="list-inline">
-              {% for p in pronunciations %}
-              <li>
-                {{ p["text"] }}
-                {% set rowloop = loop %}
-                {% for v in p["transcriptions"] %}
-                {% if "audio" in v %}
-                <audio id="audio-{{ rowloop.index }}-{{ loop.index }}">
-                  <source src="{{ v['audio'] }}" type="audio/mp3">
-                </audio>
-                <button onclick="document.getElementById('audio-{{ rowloop.index}}-{{ loop.index }}').play()">Play</button>
-                {% endif %}
-                {% endfor %}
-              </li>
+      <div class="col-xs-8">
+        <h1>{{ title }}</h1>
+        <div id="bojning">
+          <p>{{ bojning }}</p>
+        </div>
+        <div id="pronunciation">
+          <ul class="list-inline">
+            {% for p in pronunciations %}
+            <li>
+              {{ p["text"] }}
+              {% set rowloop = loop %}
+              {% for v in p["transcriptions"] %}
+              {% if "audio" in v %}
+              <audio id="audio-{{ rowloop.index }}-{{ loop.index }}">
+                <source src="{{ v['audio'] }}" type="audio/mp3">
+              </audio>
+              <button onclick="document.getElementById('audio-{{ rowloop.index}}-{{ loop.index }}').play()">Play</button>
+              {% endif %}
               {% endfor %}
-            </ul>
-          </div>
+            </li>
+            {% endfor %}
+          </ul>
         </div>
-        <div class="col-xs-4">
-          <form class="form-inline" method="GET" action="/">
-            <div class="form-group">
-              <label class="sr-only" for="query">Look up word</label>
-              <input type="text" class="form-control" name="query" placeholder="Word">
-              <button type="submit" class="btn btn-default">Submit</button>
-            </div>
-          </form>
-        </div>
-      </div>
-      <div class="row">
+        {% if definitions %}
         <h2>Betydninger</h2>
-        <div id="definitions">
-            {% for d in definitions %}
-            <div class="definition">
-              <p>{{ d["definition"] }}</p>
+        <div class="definitions">
+          {% for d in definitions %}
+          <div class="definition">
+            <p>{{ d["definition"] }}</p>
 
-              {% if "grammar" in d %}
-              <p>{{ d["grammar"] }}</p>
-              {% endif %}
+            {% if "grammar" in d %}
+            <p class="small"><em>{{ d["grammar"] }}</em></p>
+            {% endif %}
 
-              {% if "synonyms" in d %}
-              {% for s in d["synonyms"] %}
-              <p>{{ s }}</p>
-              {% endfor %}
-              {% endif %}
-
-              {% if "quotes" in d %}
-              {% for s in d["quotes"] %}
-              <p>{{ s }}</p>
-              {% endfor %}
-              {% endif %}
-            </div>
+            {% if "synonyms" in d %}
+            {% for s in d["synonyms"] %}
+            <p class="synonym">{{ s }}</p>
             {% endfor %}
+            {% endif %}
+
+            {% if "quotes" in d %}
+            {% for s in d["quotes"] %}
+            <p class="quote">{{ s }}</p>
+            {% endfor %}
+            {% endif %}
+          </div>
+          {% endfor %}
         </div>
+        {% endif %}
+        {% if faste_udtryk %}
         <h2>Faste udtryk</h2>
-        <div id="faste_udtryk">
-            {% for d in faste_udtryk %}
-            <div class="definition">
-              <p>{{ d["definition"] }}</p>
+        <div class="definitions">
+          {% for d in faste_udtryk %}
+          <div class="definition">
+            <p>{{ d["definition"] }}</p>
 
-              {% if "grammar" in d %}
-              <p>{{ d["grammar"] }}</p>
-              {% endif %}
+            {% if "grammar" in d %}
+            <p class="small"><em>{{ d["grammar"] }}</em></p>
+            {% endif %}
 
-              {% if "synonyms" in d %}
-              {% for s in d["synonyms"] %}
-              <p>{{ s }}</p>
-              {% endfor %}
-              {% endif %}
-
-              {% if "quotes" in d %}
-              {% for s in d["quotes"] %}
-              <p>{{ s }}</p>
-              {% endfor %}
-              {% endif %}
-            </div>
+            {% if "synonyms" in d %}
+            {% for s in d["synonyms"] %}
+            <p class="synonym">{{ s }}</p>
             {% endfor %}
+            {% endif %}
+
+            {% if "quotes" in d %}
+            {% for s in d["quotes"] %}
+            <p class="quote">{{ s }}</p>
+            {% endfor %}
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      <div class="col-xs-4">
+        <form class="form-inline" method="GET" action="/">
+          <div class="form-group">
+            <label class="sr-only" for="query">Look up word</label>
+            <input type="text" class="form-control" name="query" placeholder="Ord">
+            <button type="submit" class="btn btn-default">Søg</button>
+          </div>
+        </form>
+        <div id="suggestions">
+          {% for s in suggestions %}
+          <div class="suggestion">
+            <a href="/?{{ s['qs'] }}">{{ s['text'] }}</a>
+          </div>
+          {% endfor %}
         </div>
       </div>
     </div>

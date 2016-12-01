@@ -1,41 +1,43 @@
 from bs4 import BeautifulSoup
 import requests
+from urllib.parse import urlparse, parse_qs, urlencode
+
+from abc import ABCMeta, abstractmethod
 
 
-class Entry:
-    def __init__(self, word):
-        url = "http://ordnet.dk/ddo/ordbog?query={}".format(word)
-        resp = requests.get(url)
-        if resp.ok:
-            html = resp.content
-            self.soup = BeautifulSoup(html, 'html.parser')
-            title_soup = self.soup.find(class_="definitionBoxTop")
-            self.title = self.parse_title(title_soup)
-            pronunciation_soup = self.soup.find(id="id-udt")
-            self.pronunciations = self.parse_pronunciation(pronunciation_soup)
-            definition_soup = self.soup.find(id="content-betydninger")
-            self.definitions = self.parse_definitions(definition_soup)
-            faste_udtryk_soup = self.soup.find(id="content-faste-udtryk")
-            self.faste_udtryk = self.parse_definitions(faste_udtryk_soup)
+class Element(metaclass=ABCMeta):
+    def __init__(self, soup):
+        self.soup = soup
+        if soup is None:
+            self.json = {}
         else:
-            raise ValueError
+            self.json = self.parse(soup)
 
-    def parse_title(self, title_soup):
+    @abstractmethod
+    def parse(self, soup):
+        return
+
+    def __repr__(self):
+        return str(self.json)
+
+
+class Title(Element):
+    def parse(self, soup):
         title = {}
-        title["html"] = title_soup
-        title["title"] = title_soup.find(class_="match").getText()
-        title["attributes"] = title_soup.find(class_="tekstmedium").getText()
-        return title
+        title_span = soup.find(class_="match")
+        title["title"] = title_span.getText()
+        title["attributes"] = soup.find(class_="tekstmedium").getText()
+        return {"title": title}
 
-    def parse_pronunciation(self, pronunciation_soup):
-        pronunciation = {}
-        pronunciation["html"] = pronunciation_soup
-        pronunciation["json"] = []
-        dividers = pronunciation_soup.find_all(class_="dividerDouble")
+
+class Pronunciations(Element):
+    def parse(self, soup):
+        pronunciations = []
+        dividers = soup.find_all(class_="dividerDouble")
         for d in dividers:
             d.replace_with("|")
-        pronunciations = repr(pronunciation_soup).split("|")
-        for v in pronunciations:
+        pronunciations_soup = repr(soup).split("|")
+        for v in pronunciations_soup:
             p = BeautifulSoup(v, "html.parser")
             item = {}
             item["text"] = p.getText().strip().replace("Udtale\n", "")
@@ -46,15 +48,15 @@ class Entry:
                 if q.find("audio"):
                     variant["audio"] = q.find("audio").a["href"]
                 item["transcriptions"].append(variant)
-            pronunciation["json"].append(item)
-        return pronunciation
+            pronunciations.append(item)
+        return {"pronunciations": pronunciations}
 
-    def parse_definitions(self, definition_soup):
-        definition = {}
-        definition["html"] = definition_soup
-        definition["json"] = []
-        definitions = definition_soup.find_all(class_="definition")
-        for d in definitions:
+
+class Definitions(Element):
+    def parse(self, soup):
+        definitions = []
+        definitions_soup = soup.find_all(class_="definition")
+        for d in definitions_soup:
             item = {}
             parent = None
             for p in d.parents:
@@ -74,7 +76,7 @@ class Entry:
             grammar = parent.find(class_="grammatik")
             if grammar:
                 item["grammar"] = grammar.find(class_="inlineList").getText()
-            definition["json"].append(item)
+            definitions.append(item)
             quotes = parent.find_all(class_="citat")
             if quotes:
                 item["quotes"] = []
@@ -82,7 +84,63 @@ class Entry:
                     item["quotes"].append(e.getText())
             examples_span = parent.find(text="Eksempler")
             if examples_span:
-                examples = examples_span.parent.parent.find(class_="inlineList")
+                examples = examples_span.parent.parent.find(
+                    class_="inlineList")
                 if examples:
                     item["examples"] = examples.getText()
-        return definition
+        return {"definitions": definitions}
+
+
+class Suggestions(Element):
+    def parse(self, soup):
+        suggestions = []
+        for arrow in soup.find_all(class_="arrow-mini"):
+            arrow.replace_with("→")
+        suggestions_soup = soup.find_all("a")
+        for s in suggestions_soup:
+            item = {}
+            item["text"] = s.getText().strip()
+            href = urlparse(s.get("href"))
+            qs = href.query
+            item["query"] = parse_qs(qs)
+            item["qs"] = qs
+            suggestions.append(item)
+        return {"suggestions": suggestions}
+
+
+class Inflection(Element):
+    def parse(self, soup):
+        inflection = soup.find(class_="tekstmedium").getText()
+        return {"inflection": inflection}
+
+
+class Entry:
+    def __init__(self, query, select=""):
+        query_string = urlencode({"query": query, "select": select})
+        url = "http://ordnet.dk/ddo/ordbog?{}".format(query_string)
+        resp = requests.get(url)
+        if resp.ok:
+            html = resp.content
+            self.soup = BeautifulSoup(html, 'html.parser')
+            self.title = Title(
+                self.soup.find(class_="definitionBoxTop")).json
+            self.inflection = Inflection(
+                self.soup.find(id="id-boj")).json
+            self.pronunciations = Pronunciations(
+                self.soup.find(id="id-udt")).json
+            self.definitions = Definitions(
+                self.soup.find(id="content-betydninger")).json
+            self.faste_udtryk = Definitions(
+                self.soup.find(id="content-faste-udtryk")).json
+            self.suggestions = Suggestions(
+                self.soup.find(class_="searchResultBox")).json
+        else:
+            raise ValueError
+
+    def serialize(self):
+        return {**self.title, **self.inflection, **self.pronunciations,
+                **self.definitions, **self.faste_udtryk,
+                **self.suggestions}
+
+    def __repr__(self):
+        return str(self.title)

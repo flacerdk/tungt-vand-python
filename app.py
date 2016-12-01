@@ -6,19 +6,22 @@ app = Flask(__name__)
 @app.route("/")
 def hello():
     query = request.args.get("query")
+    select = request.args.get("select", "")
     if query is None:
         return render_template("entry.html")
     else:
         try:
-            entry = Entry(query)
+            entry = Entry(query, select)
         except ValueError:
             return render_template("entry.html")
         return render_template(
             'entry.html',
-            title=entry.title["title"],
-            pronunciations=entry.pronunciations["json"],
-            definitions=entry.definitions["json"],
-            faste_udtryk=entry.faste_udtryk["json"]
+            title=entry.title["title"]["title"],
+            pronunciations=entry.pronunciations["pronunciations"],
+            definitions=entry.definitions["definitions"],
+            faste_udtryk=entry.faste_udtryk["definitions"],
+            suggestions=entry.suggestions["suggestions"],
+            bojning=entry.inflection["inflection"]
         )
 
 
