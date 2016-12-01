@@ -137,10 +137,5 @@ class Entry:
         else:
             raise ValueError
 
-    def serialize(self):
-        return {**self.title, **self.inflection, **self.pronunciations,
-                **self.definitions, **self.faste_udtryk,
-                **self.suggestions}
-
     def __repr__(self):
         return str(self.title)
