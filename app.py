@@ -1,19 +1,16 @@
 from flask import Flask, request, render_template, redirect, url_for
 from parse_entry import Entry
 app = Flask(__name__)
+app.config["APPLICATION_ROOT"] = "/ddo"
 
 
 @app.route("/")
-def hello():
-    return render_template("entry.html")
-
-
-@app.route("/ddo")
 def lookup():
+    print("hi")
     query = request.args.get("query")
     select = request.args.get("select", "")
     if query is None:
-        return redirect(url_for('/'))
+        return render_template("entry.html")
     else:
         try:
             entry = Entry(query, select)
@@ -21,12 +18,12 @@ def lookup():
             return render_template("entry.html")
         return render_template(
             'entry.html',
-            title=entry.title["title"]["title"],
-            pronunciations=entry.pronunciations["pronunciations"],
-            definitions=entry.definitions["definitions"],
-            faste_udtryk=entry.faste_udtryk["definitions"],
-            suggestions=entry.suggestions["suggestions"],
-            bojning=entry.inflection["inflection"]
+            title=entry.title,
+            pronunciations=entry.pronunciations,
+            definitions=entry.definitions,
+            faste_udtryk=entry.faste_udtryk,
+            suggestions=entry.suggestions,
+            bojning=entry.inflection
         )
 
 

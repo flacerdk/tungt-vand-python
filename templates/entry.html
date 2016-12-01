@@ -11,13 +11,18 @@
   <body>
     <div class="container">
       <div class="col-xs-8">
-        <h1>{{ title }}</h1>
+        {% if "title" in title %}
+        <h1>{{ title["title"]["title"] }}</h1>
+        {% endif %}
+        {% if "inflection" in inflection %}
         <div id="bojning">
-          <p>{{ bojning }}</p>
+          <p>{{ inflection["inflection"] }}</p>
         </div>
+        {% endif %}
+        {% if "pronunciations" in pronunciations %}
         <div id="pronunciation">
           <ul class="list-inline">
-            {% for p in pronunciations %}
+            {% for p in pronunciations["pronunciations"] %}
             <li>
               {{ p["text"] }}
               {% set rowloop = loop %}
@@ -33,10 +38,11 @@
             {% endfor %}
           </ul>
         </div>
-        {% if definitions %}
+        {% endif %}
+        {% if "definitions" in definitions %}
         <h2>Betydninger</h2>
         <div class="definitions">
-          {% for d in definitions %}
+          {% for d in definitions["definitions"] %}
           <div class="definition">
             <p>{{ d["definition"] }}</p>
 
@@ -59,10 +65,10 @@
           {% endfor %}
         </div>
         {% endif %}
-        {% if faste_udtryk %}
+        {% if "definitions" in faste_udtryk %}
         <h2>Faste udtryk</h2>
         <div class="definitions">
-          {% for d in faste_udtryk %}
+          {% for d in faste_udtryk["definitions"] %}
           <div class="definition">
             <p>{{ d["definition"] }}</p>
 
@@ -88,7 +94,7 @@
       </div>
       <div class="col-xs-4">
         <div class="search-box">
-        <form class="form-inline" method="GET" action="/ddo">
+        <form class="form-inline" method="GET" action="{{ url_for('lookup') }}">
           <div class="form-group">
             <label class="sr-only" for="query">Look up word</label>
             <input type="text" class="form-control" name="query" placeholder="Ord">
@@ -96,13 +102,15 @@
           </div>
         </form>
         </div>
+        {% if "suggestions" in suggestions %}
         <div id="suggestions">
-          {% for s in suggestions %}
+          {% for s in suggestions["suggestions"] %}
           <div class="suggestion">
             <a href="/?{{ s['qs'] }}">{{ s['text'] }}</a>
           </div>
           {% endfor %}
         </div>
+        {% endif %}
       </div>
     </div>
   </body>
