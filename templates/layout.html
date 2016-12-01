@@ -9,9 +9,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='entry.css') }}">
   </head>
   <body>
-    <div class="container">
+    <div class="container-fluid">
       <div class="col-xs-8">
         {% block definition %}{% endblock %}
+      </div>
       <div class="col-xs-4">
         <div class="search-box">
         <form class="form-inline" method="GET" action="{{ url_for('lookup') }}">
