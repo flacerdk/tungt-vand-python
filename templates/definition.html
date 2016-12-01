@@ -88,7 +88,7 @@
 <div id="suggestions">
   {% for s in entry.suggestions["suggestions"] %}
   <div class="suggestion">
-    <a href="/?{{ s['qs'] }}">{{ s['text'] }}</a>
+    <a href="{{ url_for('lookup') }}?{{ s['qs'] }}">{{ s['text'] }}</a>
   </div>
   {% endfor %}
 </div>
