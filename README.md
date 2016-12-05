@@ -5,6 +5,11 @@ for [Den Danske Ordbog (DDO)](http://ordnet.dk/ddo).
 
 Try the service [here](http://maskd.dk/ddo/).
 
+## Setup
+
+Install the dependencies with `pip install -r requirements.txt` and run the
+server with `python app.py`.
+
 ## Rationale
 
 I'm learning Danish and DDO is a very valuable resource for me. However, using
