@@ -3,7 +3,7 @@
 This is a (partially) improved, mobile-friendly version of the website
 for [Den Danske Ordbog (DDO)](http://ordnet.dk/ddo).
 
-Try the service [here](http://maskd.dk/ddo/).
+Try the service [here](http://flacer.dk/ddo).
 
 ## Setup
 
