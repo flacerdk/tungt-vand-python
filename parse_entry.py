@@ -1,4 +1,4 @@
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 import requests
 from urllib.parse import urlparse, parse_qs, urlencode
 
@@ -6,15 +6,15 @@ from abc import ABCMeta, abstractmethod
 
 
 class Element(metaclass=ABCMeta):
-    def __init__(self, soup):
+    def __init__(self, soup, **kwargs):
         self.soup = soup
         if soup is None:
             self.json = {}
         else:
-            self.json = self.parse(soup)
+            self.json = self.parse(soup, **kwargs)
 
     @abstractmethod
-    def parse(self, soup):
+    def parse(self, soup, **kwargs):
         return
 
     def __repr__(self):
@@ -53,7 +53,7 @@ class Pronunciations(Element):
 
 
 class Definitions(Element):
-    def parse(self, soup):
+    def parse(self, soup, with_header=False):
         definitions = []
         definitions_soup = soup.find_all(class_="definition")
         for d in definitions_soup:
@@ -65,6 +65,14 @@ class Definitions(Element):
                     break
             if parent is None:
                 continue
+            if with_header:
+                s = parent
+                for i in range(4):
+                    s = s.previous_sibling
+                if isinstance(s, Tag):
+                    title = s.find(class_="match")
+                    if title:
+                        item["title"] = title.getText()
             item["definition"] = parent.find(class_="definition").getText()
             synonyms_div = parent.find(text="Synonym")
             if synonyms_div:
@@ -131,7 +139,7 @@ class Entry:
             self.definitions = Definitions(
                 self.soup.find(id="content-betydninger")).json
             self.faste_udtryk = Definitions(
-                self.soup.find(id="content-faste-udtryk")).json
+                self.soup.find(id="content-faste-udtryk"), with_header=True).json
             self.suggestions = Suggestions(
                 self.soup.find(class_="searchResultBox")).json
         else:

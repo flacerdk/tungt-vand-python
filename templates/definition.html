@@ -60,6 +60,7 @@
 <div class="definitions">
   {% for d in entry.faste_udtryk["definitions"] %}
   <div class="definition">
+    <h3>{{ d["title"] }}</h3>
     <p>{{ d["definition"] }}</p>
 
     {% if "grammar" in d %}
